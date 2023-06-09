@@ -1,0 +1,124 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creating a forst EC2 Instance with CloudFormation
+
+Resources:
+  SumanthEC2Instance01:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-024fc608af8f886bc
+      InstanceType: t2.micro
+      KeyName: sumanth
+      AvailabilityZone: us-east-1a
+
+  SumanthEC2Instance02:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-024fc608af8f886bc
+      InstanceType: t2.micro
+      KeyName: sumanth
+      AvailabilityZone: us-east-1a
+
+
+  SumanthEBSVolume01:
+    Type: AWS::EC2::Volume
+    Properties: 
+      AvailabilityZone: us-east-1a
+      Size: 5
+
+  SumanthEBSVolume02:
+    Type: AWS::EC2::Volume
+    Properties: 
+      AvailabilityZone: us-east-1a
+      Size: 6
+
+  EC2VolumeAttachment01:
+    Type: AWS::EC2::VolumeAttachment
+    Properties: 
+      Device: /dev/sdh
+      InstanceId: !Ref SumanthEC2Instance01
+      VolumeId: !Ref SumanthEBSVolume01
+
+  EC2VolumeAttachment02:
+    Type: AWS::EC2::VolumeAttachment
+    Properties: 
+      Device: /dev/sdh
+      InstanceId: !Ref SumanthEC2Instance02
+      VolumeId: !Ref SumanthEBSVolume02
+
+  SumanthS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: sumanths3
+
+  SumanthS3Role:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: sumanth-s3-access-policy
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - s3.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Description: Role to provide access to S3
+      Policies:
+        - PolicyName: Sumanth-read-write-s3-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                - s3:GetBucketLocation
+                - s3:ListAllMyBuckets
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                - s3:ListBucket
+                Resource:
+                - arn:aws:s3:::test
+              - Effect: Allow
+                Action:
+                - s3:PutObject
+                - s3:GetObject
+                - s3:DeleteObject
+                Resource:
+                - !Sub arn:aws:s3:::${SumanthS3Bucket}
+                - !Sub arn:aws:s3:::${SumanthS3Bucket}/*
+            
+  SumanthLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: sumanthloadbalancer
+      Scheme: internet-facing
+      Type: network
+      Subnets:
+        - subnet-0d25f7c0ef0657c24
+      
+
+  SumanthTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: SumanthTargetGroup
+      Port: 80
+      Protocol: TCP
+      VpcId: vpc-05fd77bd21497b182
+      Targets:
+        - Id: !Ref SumanthEC2Instance01
+          Port: 80
+          #AvailabilityZone: us-east-1a
+        - Id: !Ref SumanthEC2Instance02
+          Port: 80
+          #AvailabilityZone: us-east-1a
+
+  SumanthListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref SumanthLoadBalancer
+      Port: 80
+      Protocol: TCP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref SumanthTargetGroup
