@@ -1,1 +1,57 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creating Auto Scaling Groups with CloudFormation
 
+Resources:
+  sumanthlaunchtemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        ImageId: ami-024fc608af8f886bc
+        InstanceType: t2.micro
+        KeyName: sumanth
+      LaunchTemplateName: sumanthlaunchtemplate
+  
+
+  sumanthloadbalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: sumanthformationloadbalancer
+      Scheme: internet-facing
+      Type: network
+      Subnets:
+        - subnet-0d25f7c0ef0657c24
+
+
+  sumanthtargetgroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: sumanthtargetgroup
+      Port: 80
+      Protocol: TCP
+      VpcId: vpc-05fd77bd21497b182
+
+  sumanthlistener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref sumanthloadbalancer
+      Port: 80
+      Protocol: TCP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref sumanthtargetgroup
+
+
+  sumanthautoscaling:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: sumanthautoscalinggroup
+      AvailabilityZones: 
+        - us-east-1a
+      DesiredCapacity: 3
+      MinSize: 1
+      MaxSize: 5
+      LaunchTemplate: 
+        LaunchTemplateId: !Ref sumanthlaunchtemplate
+        Version: !GetAtt sumanthlaunchtemplate.LatestVersionNumber
+      TargetGroupARNs: 
+        - !Ref sumanthtargetgroup
