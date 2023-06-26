@@ -6,9 +6,7 @@ pipeline {
             steps {
 
                 
-                dockerImage = docker.build("sumanthbondu/myapp:3.0")
-                withDockerRegistry([ credentialsId: "DockerHub_Credentials", url: "" ]) {
-                    dockerImage.push()
+                sh 'sudo docker build -t devxpace-test:3.0 .'
         }      
             }
         }
