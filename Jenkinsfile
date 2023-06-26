@@ -4,7 +4,8 @@ pipeline {
     stages {
         stage('Build and Deploy') {
             steps {
-                sh 'docker build -t sumanthbondu/myapp:2.0 .'          
+
+                sh 'sudo docker build -t sumanthbondu/myapp:2.0 .'          
             }
         }
     }
