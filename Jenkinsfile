@@ -8,7 +8,6 @@ pipeline {
                 
                 sh 'sudo docker build -t devxpace-test:3.0 .'
         }      
-            }
         }
         
     }
