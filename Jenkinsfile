@@ -5,9 +5,12 @@ pipeline {
         stage('Build and Deploy') {
             steps {
 
-                sh 'sudo docker build -t sumanthbondu/myapp:2.0 .'
-                sh 'sudo docker push sumanthbondu/myapp:2.0'          
+                sh 'sudo docker build -t sumanthbondu/myapp:2.0 .'  
+                withDockerRegistry([ credentialsId: "DockerHub_Credentials"]) {
+                dockerImage.push()
+        }      
             }
         }
+        
     }
 }
