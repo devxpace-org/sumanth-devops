@@ -5,9 +5,10 @@ pipeline {
         stage('Build and Deploy') {
             steps {
 
-                sh 'sudo docker build -t sumanthbondu/myapp:2.0 .'  
+                
+                dockerImage = docker.build("sumanthbondu/myapp:3.0")
                 withDockerRegistry([ credentialsId: "DockerHub_Credentials", url: "" ]) {
-                dockerImage.push()
+                    dockerImage.push()
         }      
             }
         }
