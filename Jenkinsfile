@@ -9,9 +9,9 @@ pipeline {
             steps {
 
                 
-                sh 'sudo docker build -t sumanthbondu/helloworld:maazin .'
+                sh 'sudo docker build -t sumanthbondu/helloworld:karthik .'
 		sh 'sudo chmod 666 /var/run/docker.sock'
-                sh 'docker push sumanthbondu/helloworld:maazin'
+                sh 'docker push sumanthbondu/helloworld:karthik'
 		//sh 'docker pull sumanthbondu/nicejob:1.0'
 		//sh 'docker run -d -p 5000:3000 --name nicejob sumanthbondu/nicejob:1.0'
         }      
